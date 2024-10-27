@@ -8,9 +8,11 @@
     "@types/react": "^18.3.8",
     "@types/react-dom": "^18.3.0",
     "bootstrap": "^5.3.3",
+    "final-form": "^4.20.10",
     "react": "^18.3.1",
     "react-bootstrap": "^2.10.4",
     "react-dom": "^18.3.1",
+    "react-final-form": "^6.5.9",
     "react-scripts": "5.0.1",
     "typescript": "^4.9.5",
     "web-vitals": "^2.1.4"
