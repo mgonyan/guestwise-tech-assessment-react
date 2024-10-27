@@ -3,7 +3,7 @@ import {
   screen,
   waitForElementToBeRemoved,
 } from "@testing-library/react";
-import userEvent from "@testing-library/user-event";
+import userEvent, { UserEvent } from "@testing-library/user-event";
 
 import App from "../App";
 
@@ -48,12 +48,27 @@ const formData = {
   guests: "2",
 };
 
+let user: UserEvent;
+
+beforeAll(() => {
+  // This is to fake the time to be 2020-01-01 12:00:00
+  // avoiding the need to wait for the date to be tomorrow
+  jest.useFakeTimers().setSystemTime(new Date("2020-01-01T12:00:00Z"));
+  user = userEvent.setup({
+    advanceTimers: () => jest.runOnlyPendingTimers(),
+  });
+});
+
 beforeEach(() => {
   global.fetch = jest.fn();
 });
 
 afterEach(() => {
   jest.restoreAllMocks();
+});
+
+afterAll(() => {
+  jest.useRealTimers();
 });
 
 describe("Acceptant Test", () => {
@@ -111,7 +126,7 @@ describe("Acceptant Test", () => {
     const selectedRestaurant = screen.getByRole("heading", {
       name: RegExp(restaurant.name, "i"),
     });
-    await userEvent.click(selectedRestaurant);
+    await user.click(selectedRestaurant);
 
     // Then: The component renders the loading state while fetching the data
     const detailsLoader = await screen.findByText(/loading/i);
@@ -140,15 +155,15 @@ describe("Acceptant Test", () => {
     const timeInput = screen.getByLabelText("Time");
     const guestsInput = screen.getByLabelText("Guests");
 
-    await userEvent.type(nameInput, formData.name);
-    await userEvent.type(emailInput, formData.email);
-    await userEvent.type(phoneNumberInput, formData.phone);
-    await userEvent.type(dateInput, formData.date); // Tomorrow according fake timer
-    await userEvent.type(timeInput, formData.time); // An hour in the future according fake timer
-    await userEvent.type(guestsInput, formData.guests);
+    await user.type(nameInput, formData.name);
+    await user.type(emailInput, formData.email);
+    await user.type(phoneNumberInput, formData.phone);
+    await user.type(dateInput, formData.date); // Tomorrow according fake timer
+    await user.type(timeInput, formData.time); // An hour in the future according fake timer
+    await user.type(guestsInput, formData.guests);
 
     const submitButton = screen.getByRole("button", { name: "Book" });
-    await userEvent.click(submitButton);
+    await user.click(submitButton);
 
     expect(await screen.findByText(/booking successful/i)).toBeInTheDocument();
 
