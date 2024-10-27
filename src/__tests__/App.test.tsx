@@ -46,7 +46,7 @@ describe("Acceptant Test", () => {
     /////////// Displaying a list of restaurants /////////////
     const name = "Gourmet Kitchen";
     const address = "This is the fake address";
-    const score = "3.1";
+    const score = 3.1;
     const contactEmail = "contact@restaurant4.com";
     const restaurants = [
       { name: "Peru Fusion", description: "peru description 1" },
