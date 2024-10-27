@@ -171,6 +171,16 @@ describe("Acceptant Test", () => {
         method: "POST",
       }
     );
+
+    ////////////////////////////////
+    // And: Use can go back to the restaurant list
+    const backButton = screen.getByRole("button", { name: /Back/ });
+    expect(backButton).toBeInTheDocument();
+    await user.click(backButton);
+
+    await waitFor(() =>
+      expect(screen.queryByText(/book a table/i)).not.toBeInTheDocument()
+    );
   });
 });
 
