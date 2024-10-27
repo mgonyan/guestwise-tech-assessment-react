@@ -1,5 +1,8 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { ListGroup, Container } from "react-bootstrap";
+import { getRestaurants } from "../services/api";
+import Loader from "./Loader";
+import Error from "./Error";
 
 type Restaurant = {
   id: number;
@@ -14,25 +17,15 @@ type RestaurantListProps = {
 const RestaurantList: React.FC<RestaurantListProps> = ({
   onRestaurantSelect,
 }) => {
-  const restaurants = [
-    {
-      id: 1,
-      name: "Velvet & Vine",
-      shortDescription: "A fine dining experience with a modern twist.",
-      cuisine: "French",
-      rating: 4.7,
-      details: {
-        id: 1,
-        address: "123 Fine St, London",
-        openingHours: {
-          weekday: "12:00 PM - 10:00 PM",
-          weekend: "11:00 AM - 11:00 PM",
-        },
-        reviewScore: 4.7,
-        contactEmail: "info@gourmetkitchen.com",
-      },
-    },
-  ];
+  const { restaurants, loading, error } = useQueryRestaurants();
+
+  if (loading) {
+    return <Loader />;
+  }
+
+  if (error) {
+    return <Error message={error} />;
+  }
 
   return (
     <Container>
@@ -54,3 +47,31 @@ const RestaurantList: React.FC<RestaurantListProps> = ({
 };
 
 export default RestaurantList;
+
+const useQueryRestaurants = (): {
+  restaurants: Restaurant[];
+  loading: boolean;
+  error?: string;
+} => {
+  const [rs, setRestaurants] = useState<Restaurant[] | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+
+  useEffect(() => {
+    async function fetchRestaurants() {
+      setLoading(true);
+      try {
+        const data: Restaurant[] = await getRestaurants();
+        setRestaurants(data);
+      } catch (error) {
+        setError(`Error fetching restaurants: ${(error as Error).message}`);
+      }
+
+      setLoading(false);
+    }
+
+    fetchRestaurants();
+  }, []);
+
+  return { restaurants: rs || [], loading, error };
+};
