@@ -11,23 +11,25 @@ function App() {
     number | null
   >(null);
 
-  return (
-    <Container>
-      <Row>
-        <Col md={4}>
-          <RestaurantList onRestaurantSelect={setSelectedRestaurantId} />
-        </Col>
-        <Col md={8}>
-          {selectedRestaurantId && (
-            <>
-              <RestaurantDetails restaurantId={selectedRestaurantId} />
-              <BookTable />
-            </>
-          )}
-        </Col>
-      </Row>
-    </Container>
-  );
+  if (selectedRestaurantId) {
+    return (
+      <Container className="m-3">
+        <Row>
+          <Col md={4}>
+            <RestaurantDetails
+              restaurantId={selectedRestaurantId}
+              onGoBack={() => setSelectedRestaurantId(null)}
+            />
+          </Col>
+          <Col md={8}>
+            <BookTable />
+          </Col>
+        </Row>
+      </Container>
+    );
+  }
+
+  return <RestaurantList onRestaurantSelect={setSelectedRestaurantId} />;
 }
 
 export default App;

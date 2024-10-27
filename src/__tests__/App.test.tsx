@@ -1,43 +1,13 @@
 import {
   render,
   screen,
+  waitFor,
   waitForElementToBeRemoved,
 } from "@testing-library/react";
 import userEvent, { UserEvent } from "@testing-library/user-event";
 
 import App from "../App";
-
-const createRestaurantData = ({
-  id,
-  name,
-  description,
-  address,
-  score,
-  contactEmail,
-}: {
-  id: string;
-  name: string;
-  description: string;
-  address?: string;
-  contactEmail?: string;
-  score?: string;
-}) => ({
-  id,
-  name,
-  shortDescription: description,
-  cuisine: "French",
-  rating: 4.7,
-  details: {
-    id: 1,
-    address: address ?? "123 Fine St, London",
-    openingHours: {
-      weekday: "12:00 PM - 10:00 PM",
-      weekend: "11:00 AM - 11:00 PM",
-    },
-    reviewScore: score ?? "4.7",
-    contactEmail: contactEmail ?? "info@gourmetkitchen.com",
-  },
-});
+import { createRestaurantData } from "../testUtils";
 
 const formData = {
   name: "John Doe",
@@ -74,13 +44,14 @@ afterAll(() => {
 describe("Acceptant Test", () => {
   it("shows a list of restaurants, selecting one and book a table", async () => {
     /////////// Displaying a list of restaurants /////////////
+    const name = "Gourmet Kitchen";
     const address = "This is the fake address";
     const score = "3.1";
     const contactEmail = "contact@restaurant4.com";
     const restaurants = [
       { name: "Peru Fusion", description: "peru description 1" },
       {
-        name: "Gourmet Kitchen",
+        name,
         description: "gourmet description",
         address,
         score,
@@ -113,6 +84,30 @@ describe("Acceptant Test", () => {
       expect(restaurantName).toBeInTheDocument();
       expect(restaurantDescription).toBeInTheDocument();
     });
+
+    //////////////// Search and sort ///////////////////////
+    // When: A user searches for a restaurant
+
+    const filterInput = await screen.findByRole("textbox", {
+      name: /filter restaurant/i,
+    });
+
+    // When: Filter the list by "Gourmet Kitchen"
+    await user.type(filterInput, name);
+
+    // There: Only the restaurant "Gourmet Kitchen" should be displayed
+    await waitFor(() =>
+      expect(screen.queryAllByRole("listitem")).toHaveLength(1)
+    );
+
+    // // And: Clear the filters
+    const clearFilterLink = await screen.findByText(/clear filters/i);
+    await user.click(clearFilterLink);
+
+    // // All the restaurants should be displayed
+    await waitFor(() =>
+      expect(screen.queryAllByRole("listitem")).toHaveLength(3)
+    );
 
     //////////////// Selecting a restaurant ////////////////
     // Resolves /restaurant/1

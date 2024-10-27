@@ -1,11 +1,12 @@
 import React, { useEffect, useState } from "react";
-import { Card, Container } from "react-bootstrap";
+import { Button, Card, Container } from "react-bootstrap";
 import Loader from "./Loader";
 import Error from "./Error";
 import { getRestaurantDetails } from "../services/api";
 
 type RestaurantDetailsProps = {
   restaurantId: number;
+  onGoBack: () => void;
 };
 
 type RestaurantDetailsData = {
@@ -20,6 +21,7 @@ type RestaurantDetailsData = {
 
 const RestaurantDetails: React.FC<RestaurantDetailsProps> = ({
   restaurantId,
+  onGoBack,
 }) => {
   const { details, loading, error } = useQueryRestaurantDetails(restaurantId);
 
@@ -31,18 +33,27 @@ const RestaurantDetails: React.FC<RestaurantDetailsProps> = ({
     return <Loader />;
   }
 
-  if (error) {
-    return <Error message={error} />;
-  }
-
   return (
     <Container>
       <Card>
         <Card.Body>
-          <Card.Title>Restaurant Details</Card.Title>
-          <Card.Text>Address: {details?.address}</Card.Text>
-          <Card.Text>Review Score: {details?.reviewScore}</Card.Text>
-          <Card.Text>Contact: {details?.contactEmail}</Card.Text>
+          {error ? (
+            <Error message={error} />
+          ) : (
+            <>
+              <Card.Title>Restaurant Details</Card.Title>
+              <Card.Text>Address: {details?.address}</Card.Text>
+              <Card.Text>Review Score: {details?.reviewScore}</Card.Text>
+              <Card.Text>Contact: {details?.contactEmail}</Card.Text>
+            </>
+          )}
+          <Button
+            variant="secondary"
+            className="mt-3"
+            onClick={() => onGoBack()}
+          >
+            {"<"} Back
+          </Button>
         </Card.Body>
       </Card>
     </Container>
